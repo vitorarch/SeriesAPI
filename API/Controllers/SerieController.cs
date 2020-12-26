@@ -24,14 +24,14 @@ namespace API.Controllers
             _repository = repository;
         }
 
-        [HttpGet]
-        public async Task<List<SerieModel>> Get()
-        {
-            return  await _repository.GetAllSeries();
-        }
+        //[HttpGet]
+        //public async Task<List<SerieModel>> Get()
+        //{
+        //    return  await _repository.GetAllSeries();
+        //}
 
-        [AllowAnonymousAttribute]
-        [HttpGet("titles")]
+        [AllowAnonymous]
+        [HttpGet()]
         public async Task<List<string>> GetSeriesTitle()
         {
             return await _repository.GetAllSeriesTitle();
@@ -43,14 +43,12 @@ namespace API.Controllers
             return await _repository.GetSerieById(id);
         }
 
-        [AllowAnonymous ]
         [HttpGet("title/{title}")]
         public async Task<SerieModel> GetByTitle(string title)
         {
             return await _repository.GetSerieInfoByTitle(title); ;
         }
 
-        [AllowAnonymous]
         [HttpGet("{id}/episodes")]
         public async Task<SerieModel> GetSerieInfo(int id)
         {
@@ -59,9 +57,9 @@ namespace API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<string> Post([FromBody] SerieModel serie)
+        public async Task<IActionResult> Post([FromBody] SerieModel serie)
         {
-            return await _repository.AddSerie(serie); ;
+            return Ok(await _repository.AddSerie(serie));
         }
 
         [Authorize(Roles = "Admin")]

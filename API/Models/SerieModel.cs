@@ -13,7 +13,7 @@ namespace API.Models
 
         #region Properties
 
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Title { get; set; }
         public string Country { get; set; }
         public string Year { get; set; }
@@ -79,8 +79,6 @@ namespace API.Models
         }
 
         #endregion
-
-
 
         #region Get Series by Id
         public async Task<SerieModel> GetSerieById(int id)
@@ -209,11 +207,25 @@ namespace API.Models
                 using (var cm = new SQLiteCommand(conn))
                 {
                     PassingSerieToProperties(serie);
-                    cm.CommandText = "INSERT INTO Serie VALUES (@Title, @Country, @Year, @Rating, @Producer, @Situation, @Awards)";
+                    //passar episodios
+                    cm.CommandText = "INSERT INTO Serie VALUES (@Id, @Title, @Country, @Year, @Rating, @Producer, @Situation, @Awards)";
                     AddUpdateSerie(cm);
-                    var affectedRows = await cm.ExecuteNonQueryAsync();
-                    if(affectedRows == 1) return $"Serie { Title } Added!";
-                    else return $"Failed to save { Title }!";
+                    var serieAdded = await cm.ExecuteNonQueryAsync();
+                    long serieId = conn.LastInsertRowId;
+
+                    if(serie.Seasons == null)  // saving serie without season and episodes ( to debut )
+                    {
+                        if (serieAdded == 1 ) return $"Serie { Title } Added!";
+                        else return $"Failed to save { Title }!";
+                    }
+                    else  // saving series with seasons and episodes
+                    {
+                        EpisodeModel episodes = new EpisodeModel();
+                        bool episodesAdded = await episodes.AddEpisodes((int)serieId, Seasons);
+
+                        if (serieAdded == 1 && episodesAdded) return $"Serie { Title } Added!";
+                        else return $"Failed to save { Title }!";
+                    }
                 }
             }
         }
@@ -261,7 +273,7 @@ namespace API.Models
 
         private void PassingSerieToProperties(SerieModel serie)
         {
-            Id = serie.Id;
+            Id = null;
             Title = serie.Title;
             Country = serie.Country;
             Year = serie.Year;
@@ -269,10 +281,12 @@ namespace API.Models
             Producer = serie.Producer;
             Situation = serie.Situation;
             Awards = serie.Awards;
+            Seasons = serie.Seasons;
         }
 
         private void AddUpdateSerie(SQLiteCommand cm)
         {
+            cm.Parameters.AddWithValue("@Id", null);
             cm.Parameters.AddWithValue("@Title", Title);
             cm.Parameters.AddWithValue("@Country", Country);
             cm.Parameters.AddWithValue("@Year", Year);
@@ -281,7 +295,7 @@ namespace API.Models
             cm.Parameters.AddWithValue("@Situation", Situation);
             cm.Parameters.AddWithValue("@Awards", Awards);
         }
-        
+
         private void Fetch(DbDataReader reader)
         {
             Id = reader.GetInt32(reader.GetOrdinal("Id"));

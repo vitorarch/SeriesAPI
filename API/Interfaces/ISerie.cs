@@ -5,7 +5,7 @@ namespace API.Interfaces
 {
     public interface ISerie
     {
-        int Id { get; set; }
+        int? Id { get; set; }
         string Title { get; set; }
         string Country { get; set; }
         string Year { get; set; }

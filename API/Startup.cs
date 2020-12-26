@@ -39,10 +39,10 @@ namespace API
                     {
                         ValidateIssuer = true,
                         ValidIssuer = "Vitor",
-                        
+
                         ValidateAudience = true,
                         ValidAudience = "Vitor",
-                        
+
                         ValidateLifetime = true,
                         
                         ValidateIssuerSigningKey = true,

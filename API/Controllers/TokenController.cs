@@ -34,7 +34,7 @@ namespace API.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login([FromBody] User user)
+        public IActionResult Login([FromBody]User user)
         {
             if(_user.ValidateUserCredentials(user.Email, user.Password, out User loggedUser))
             {

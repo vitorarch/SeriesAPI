@@ -138,3 +138,4 @@ D:\Documentos\Vitor\SeriesAPI\API\obj\Debug\netcoreapp3.1\staticwebassets\API.St
 D:\Documentos\Vitor\SeriesAPI\API\obj\Debug\netcoreapp3.1\API.dll
 D:\Documentos\Vitor\SeriesAPI\API\obj\Debug\netcoreapp3.1\API.pdb
 D:\Documentos\Vitor\SeriesAPI\API\obj\Debug\netcoreapp3.1\API.genruntimeconfig.cache
+D:\Documentos\Vitor\SeriesAPI\API\obj\Debug\netcoreapp3.1\API.csprojAssemblyReference.cache
