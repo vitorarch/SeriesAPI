@@ -14,5 +14,6 @@ namespace API.Interfaces
         string Situation { get; set; }
         int? Awards { get; set; }
         List<SeasonModel> Seasons { get; set; }
+        string? Image { get; set; }
     }
 }

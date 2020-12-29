@@ -22,6 +22,7 @@ namespace API.Models
         public string Situation { get; set; }
         public int? Awards { get; set; }
         public List<SeasonModel> Seasons { get; set; }
+        public string? Image { get; set; }
 
         #endregion
 
@@ -49,7 +50,8 @@ namespace API.Models
                                 Rating = reader.GetDecimal(reader.GetOrdinal("Rating")),
                                 Producer = reader.GetString(reader.GetOrdinal("Producer")),
                                 Situation = reader.GetString(reader.GetOrdinal("Situation")),
-                                Awards = reader.GetInt32(reader.GetOrdinal("Awards"))
+                                Awards = reader.GetInt32(reader.GetOrdinal("Awards")),
+                                Image = reader.GetString(reader.GetOrdinal("Image"))
                             });
                         }
                     }
@@ -150,6 +152,7 @@ namespace API.Models
                                 Producer = reader.GetString(reader.GetOrdinal("Producer")),
                                 Situation = reader.GetString(reader.GetOrdinal("Situation")),
                                 Awards = reader.GetInt32(reader.GetOrdinal("Awards")),
+                                Image = reader.GetString(reader.GetOrdinal("Image")),
                                 Seasons = GetSeason(serieId).Result
                             };
                         }
@@ -185,6 +188,7 @@ namespace API.Models
                                 Producer = reader.GetString(reader.GetOrdinal("Producer")),
                                 Situation = reader.GetString(reader.GetOrdinal("Situation")),
                                 Awards = reader.GetInt32(reader.GetOrdinal("Awards")),
+                                Image = reader.GetString(reader.GetOrdinal("Image")),
                                 Seasons = GetSeason(serieId).Result
                             };
                         }
@@ -208,7 +212,7 @@ namespace API.Models
                 {
                     PassingSerieToProperties(serie);
                     //passar episodios
-                    cm.CommandText = "INSERT INTO Serie VALUES (@Id, @Title, @Country, @Year, @Rating, @Producer, @Situation, @Awards)";
+                    cm.CommandText = "INSERT INTO Serie VALUES (@Id, @Title, @Country, @Year, @Rating, @Producer, @Situation, @Awards, @Image)";
                     AddUpdateSerie(cm);
                     var serieAdded = await cm.ExecuteNonQueryAsync();
                     long serieId = conn.LastInsertRowId;
@@ -239,7 +243,7 @@ namespace API.Models
             {
                 using (var cm = new SQLiteCommand(conn))
                 {
-                    cm.CommandText = "UPDATE Serie SET (Title = @Title, Country = @Country, Year = @Year, Rating = @Rating, Producer = @Producer,Situation =  @Situation, Awards = @Awards) WHERE Id = @Id";
+                    cm.CommandText = "UPDATE Serie SET (Title = @Title, Country = @Country, Year = @Year, Rating = @Rating, Producer = @Producer, Situation =  @Situation, Awards = @Awards, Image = @Image) WHERE Id = @Id";
                     cm.Parameters.AddWithValue("@Id", id);
                     AddUpdateSerie(cm);
                     var affectedRows = await cm.ExecuteNonQueryAsync();
@@ -282,6 +286,7 @@ namespace API.Models
             Situation = serie.Situation;
             Awards = serie.Awards;
             Seasons = serie.Seasons;
+            Image = serie.Image;
         }
 
         private void AddUpdateSerie(SQLiteCommand cm)
@@ -294,6 +299,7 @@ namespace API.Models
             cm.Parameters.AddWithValue("@Producer", Producer);
             cm.Parameters.AddWithValue("@Situation", Situation);
             cm.Parameters.AddWithValue("@Awards", Awards);
+            cm.Parameters.AddWithValue("@Image", Image);
         }
 
         private void Fetch(DbDataReader reader)
@@ -306,6 +312,7 @@ namespace API.Models
             Producer = reader.GetString(reader.GetOrdinal("Producer"));
             Situation = reader.GetString(reader.GetOrdinal("Situation"));
             Awards = reader.GetInt32(reader.GetOrdinal("Awards"));
+            Image = reader.GetString(reader.GetOrdinal("Image"));
         }
 
         private async Task<List<SeasonModel>> GetSeason(int serieId)
