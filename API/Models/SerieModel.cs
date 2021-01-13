@@ -21,6 +21,7 @@ namespace API.Models
         public string Producer { get; set; }
         public string Situation { get; set; }
         public int? Awards { get; set; }
+        public bool Favorite { get; set; }
         public List<SeasonModel> Seasons { get; set; }
         public string? Image { get; set; }
 
@@ -51,7 +52,8 @@ namespace API.Models
                                 Producer = reader.GetString(reader.GetOrdinal("Producer")),
                                 Situation = reader.GetString(reader.GetOrdinal("Situation")),
                                 Awards = reader.GetInt32(reader.GetOrdinal("Awards")),
-                                Image = reader.GetString(reader.GetOrdinal("Image"))
+                                Image = reader.GetString(reader.GetOrdinal("Image")),
+                                Favorite = reader.GetBoolean(reader.GetOrdinal("Favorite"))
                             });
                         }
                     }
@@ -153,6 +155,7 @@ namespace API.Models
                                 Situation = reader.GetString(reader.GetOrdinal("Situation")),
                                 Awards = reader.GetInt32(reader.GetOrdinal("Awards")),
                                 Image = reader.GetString(reader.GetOrdinal("Image")),
+                                Favorite = reader.GetBoolean(reader.GetOrdinal("Favorite")),
                                 Seasons = GetSeason(serieId).Result
                             };
                         }
@@ -189,6 +192,7 @@ namespace API.Models
                                 Situation = reader.GetString(reader.GetOrdinal("Situation")),
                                 Awards = reader.GetInt32(reader.GetOrdinal("Awards")),
                                 Image = reader.GetString(reader.GetOrdinal("Image")),
+                                Favorite = reader.GetBoolean(reader.GetOrdinal("Favorite")),
                                 Seasons = GetSeason(serieId).Result
                             };
                         }
@@ -212,7 +216,7 @@ namespace API.Models
                 {
                     PassingSerieToProperties(serie);
                     //passar episodios
-                    cm.CommandText = "INSERT INTO Serie VALUES (@Id, @Title, @Country, @Year, @Rating, @Producer, @Situation, @Awards, @Image)";
+                    cm.CommandText = "INSERT INTO Serie VALUES (@Id, @Title, @Country, @Year, @Rating, @Producer, @Situation, @Awards, @Image, @Favorite)";
                     AddUpdateSerie(cm);
                     var serieAdded = await cm.ExecuteNonQueryAsync();
                     long serieId = conn.LastInsertRowId;
@@ -237,17 +241,17 @@ namespace API.Models
         #endregion
 
         #region PUT Method
-        public async Task<string> UpdateSerie(int id)
+        public async Task<string> UpdateSerie(SerieModel serie)
         {
             using (var conn = new SQLiteConnection(Database.Database.Connect))
             {
                 using (var cm = new SQLiteCommand(conn))
                 {
-                    cm.CommandText = "UPDATE Serie SET (Title = @Title, Country = @Country, Year = @Year, Rating = @Rating, Producer = @Producer, Situation =  @Situation, Awards = @Awards, Image = @Image) WHERE Id = @Id";
-                    cm.Parameters.AddWithValue("@Id", id);
-                    AddUpdateSerie(cm);
+                    cm.CommandText = "UPDATE Serie SET Title=@Title, Country=@Country, Year=@Year, Rating=@Rating, Producer=@Producer, Situation=@Situation, Awards=@Awards, Favorite=@Favorite WHERE Id=@Id";
+                    cm.Parameters.AddWithValue("@Id", serie.Id);
+                    UpdateSerie(cm, serie);
                     var affectedRows = await cm.ExecuteNonQueryAsync();
-                    if (affectedRows == 1) return $"Serie { Title } updated!";
+                    if (affectedRows == 1) return $"Serie { Title } edited!";
                     else return $"Failed to update { Title }!";
                 }
             }
@@ -273,6 +277,30 @@ namespace API.Models
 
         #endregion
 
+        #region Favorite Series
+
+        public async Task<List<string>> GetFavoriteSeries()
+        {
+            using (var conn = new SQLiteConnection(Database.Database.Connect))
+            {
+                using (var cm = new SQLiteCommand(conn))
+                {
+                    List<String> seriesImage = new List<string>();
+                    cm.CommandText = "SELECT Image FROM Serie WHERE Favorite = 1 LIMIT 4";
+                    using (var reader = await cm.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            seriesImage.Add(reader.GetString(reader.GetOrdinal("Image")));
+                        }
+                        return seriesImage;
+                    }
+                }
+            }
+        }
+
+        #endregion
+
         #region FETCH | ADD | UPDATE : AUXILIAR FUNCTIONS
 
         private void PassingSerieToProperties(SerieModel serie)
@@ -287,6 +315,7 @@ namespace API.Models
             Awards = serie.Awards;
             Seasons = serie.Seasons;
             Image = serie.Image;
+            Favorite = serie.Favorite;
         }
 
         private void AddUpdateSerie(SQLiteCommand cm)
@@ -300,6 +329,20 @@ namespace API.Models
             cm.Parameters.AddWithValue("@Situation", Situation);
             cm.Parameters.AddWithValue("@Awards", Awards);
             cm.Parameters.AddWithValue("@Image", Image);
+            cm.Parameters.AddWithValue("@Favorite", Favorite);
+        }
+
+        private void UpdateSerie(SQLiteCommand cm, SerieModel serie)
+        {
+            cm.Parameters.AddWithValue("@Id", serie.Id);
+            cm.Parameters.AddWithValue("@Title", serie.Title);
+            cm.Parameters.AddWithValue("@Country", serie.Country);
+            cm.Parameters.AddWithValue("@Year", serie.Year);
+            cm.Parameters.AddWithValue("@Rating", serie.Rating);
+            cm.Parameters.AddWithValue("@Producer", serie.Producer);
+            cm.Parameters.AddWithValue("@Situation", serie.Situation);
+            cm.Parameters.AddWithValue("@Awards", serie.Awards);
+            cm.Parameters.AddWithValue("@Favorite", serie.Favorite);
         }
 
         private void Fetch(DbDataReader reader)
@@ -313,6 +356,7 @@ namespace API.Models
             Situation = reader.GetString(reader.GetOrdinal("Situation"));
             Awards = reader.GetInt32(reader.GetOrdinal("Awards"));
             Image = reader.GetString(reader.GetOrdinal("Image"));
+            Favorite = reader.GetBoolean(reader.GetOrdinal("Favorite"));
         }
 
         private async Task<List<SeasonModel>> GetSeason(int serieId)

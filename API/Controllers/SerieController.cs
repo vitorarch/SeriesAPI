@@ -32,7 +32,7 @@ namespace API.Controllers
 
         [AllowAnonymous]
         [HttpGet()]
-        public async Task<List<string>> GetSeriesTitle()
+        public async Task<List<string>> GetSeriesTitles()
         {
             return await _repository.GetAllSeriesTitle();
         }
@@ -43,16 +43,38 @@ namespace API.Controllers
             return await _repository.GetSerieById(id);
         }
 
+        [AllowAnonymous]
+        [HttpGet("favorites")]
+        public async Task<List<string>> GetFavoriteSeries()
+        {
+            return await _repository.GetFavoriteSeries();
+        }
+
         [HttpGet("title/{title}")]
         public async Task<SerieModel> GetByTitle(string title)
         {
             return await _repository.GetSerieInfoByTitle(title); ;
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}/episodes")]
         public async Task<SerieModel> GetSerieInfo(int id)
         {
             return await _repository.GetSerieInfoById(id);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("allseries")]
+        public async Task<List<Series>> GetSeriesTitle()
+        {
+            return await _repository.GetSeriesTitle();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("filter")]
+        public async Task<List<Series>> GetSeriesFilter([FromBody] Filter filter)
+        {
+            return await _repository.GetSeriesFilter(filter);
         }
 
         [Authorize(Roles = "Admin")]
@@ -64,9 +86,9 @@ namespace API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<string> Put(int id)
+        public async Task<string> Put(SerieModel serie)
         {
-            return await _repository.UpdateSerie(id); ;
+            return await _repository.UpdateSerie(serie);
         }
 
         [Authorize(Roles = "Admin")]

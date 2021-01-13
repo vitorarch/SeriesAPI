@@ -9,7 +9,7 @@ namespace API.Database
         {
             get
             {
-                string DataBasePath = @"Data Source = D:\Documentos\Vitor\SeriesAPI\Series.db";//; Version = 3";
+                string DataBasePath = @"Data Source = D:\Vitor\SeriesAPI\Series.db";//; Version = 3";
                 return DataBasePath;
             }
         }

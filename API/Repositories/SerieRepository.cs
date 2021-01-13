@@ -11,10 +11,12 @@ namespace API.Repositories
     {
 
         private readonly SerieModel _serie;
+        private readonly Series _series;
 
         public SerieRepository()
         {
             _serie = new SerieModel();
+            _series = new Series();
         }
 
         public async Task<List<SerieModel>> GetAllSeries()
@@ -32,6 +34,11 @@ namespace API.Repositories
             return await _serie.GetSerieById(id);
         }
 
+        public async Task<List<string>> GetFavoriteSeries()
+        {
+            return await _serie.GetFavoriteSeries();
+        }
+
         public async Task<SerieModel> GetSerieByTitle(string title)
         {
             return await _serie.GetSerieByTitle(title);
@@ -47,14 +54,24 @@ namespace API.Repositories
             return await _serie.GetSerieInfoByTitle(title);
         }
 
+        public async Task<List<Series>> GetSeriesTitle()
+        {
+            return await _series.GetSeriesTitle();
+        }
+
+        public async Task<List<Series>> GetSeriesFilter(Filter filter)
+        {
+            return await _series.GetSeriesFilter(filter);
+        }
+
         public async Task<string> AddSerie(SerieModel serie)
         {
             return await _serie.AddSerie(serie);
         }
 
-        public async Task<string> UpdateSerie(int id)
+        public async Task<string> UpdateSerie(SerieModel serie)
         {
-            return await _serie.UpdateSerie(id);
+            return await _serie.UpdateSerie(serie);
         }
 
         public async Task<string> DeleteSerie(int id)
